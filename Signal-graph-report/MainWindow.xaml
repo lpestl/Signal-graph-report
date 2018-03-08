@@ -5,12 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Signal_graph_report"
         mc:Ignorable="d"
-        Title="Signal graph report app" Height="350" Width="525">
+        Title="Signal graph report app" Height="600" Width="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        
+        <GroupBox Header="Settings" Margin="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.3*"></ColumnDefinition>
+                    <ColumnDefinition Width="0.7*"/>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" >Date:</Label>
+                <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">Enter date...</TextBox>
+
+                <Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Time:</Label>
+                <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center">Enter time...</TextBox>
+                
+                <Label Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">File name:</Label>
+                <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center">Enter sample code...</TextBox>
+
+            </Grid>
+        </GroupBox>
+        <Canvas Margin="10" Grid.Row="1" Background="White" />
+
     </Grid>
 </Window>

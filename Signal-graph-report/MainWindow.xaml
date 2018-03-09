@@ -33,6 +33,13 @@
                 <Label Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">File name:</Label>
                 <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center">Enter sample code...</TextBox>
 
+                <DataGrid Grid.Column="2" Grid.RowSpan="3" Margin="5" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Hold time" Width="1*" />
+                        <DataGridTextColumn Header="Area" Width="1*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
             </Grid>
         </GroupBox>
         <Canvas Margin="10" Grid.Row="1" Background="White" />

@@ -93,5 +93,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Signal-graph.Core\Signal-graph.Core.vcxproj">
+      <Project>{f33ce52b-d4f0-4bb8-97f7-95029c2b966f}</Project>
+      <Name>Signal-graph.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Signal_graph_report.src.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,8 @@ namespace Signal_graph_report
         public MainWindow()
         {
             InitializeComponent();
+
+            DataContext = new ReportDataViewModel();
         }
     }
 }

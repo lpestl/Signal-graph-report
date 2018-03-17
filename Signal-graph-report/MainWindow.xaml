@@ -3,14 +3,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Signal_graph_report"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:local="clr-namespace:Signal_graph_report.src.ViewModel"
         mc:Ignorable="d"
         Title="Signal graph report app" Height="600" Width="800">
     <Grid Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
+        
         <GroupBox Header="Settings" Margin="10">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -19,19 +22,24 @@
                     <ColumnDefinition Width="1*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
 
                 <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" >Date:</Label>
-                <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">Enter date...</TextBox>
+                <!--<TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Date}" />-->
+                <xctk:MaskedTextBox x:Name="maskDate" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Mask="00.00.0000" Text="{Binding Date}" />
 
                 <Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Time:</Label>
-                <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center">Enter time...</TextBox>
+                <!--<TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Time}" />-->
+                <xctk:MaskedTextBox x:Name="maskTime" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Mask="00:00" Text="{Binding Time}" />
 
                 <Label Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">File name:</Label>
-                <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center">Enter sample code...</TextBox>
+                <!--<TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Code}" />-->
+                <xctk:MaskedTextBox x:Name="maskCode" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Mask="000-000" Text="{Binding Code}" />
+
+
                 <DataGrid Grid.Column="2" Margin="5" Grid.Row="0" Grid.RowSpan="3">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Hold time" Width="1*" />
@@ -39,16 +47,32 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <DataGrid Grid.Column="2" Grid.RowSpan="3" Margin="5" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True">
+                <DataGrid Grid.Column="2" Grid.RowSpan="3" Margin="5" AutoGenerateColumns="False" ItemsSource="{Binding KeyPoints}"
+                    CanUserAddRows="False" CanUserDeleteRows="False">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Hold time" Width="1*" />
-                        <DataGridTextColumn Header="Area" Width="1*" />
+                        <DataGridTextColumn Header="Hold time" Width="1*" Binding="{Binding Path=HoldTime}" />
+                        <DataGridTextColumn Header="Area (x10^7)" Width="1*" Binding="{Binding Path=Area}" />
                     </DataGrid.Columns>
                 </DataGrid>
 
             </Grid>
         </GroupBox>
-        <Canvas Margin="15" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            
+            <Button Grid.Column="0" Margin="5" Height="25" Name="DrawGraph" Command="{Binding MessageBoxCommand}">Draw graphic</Button>
+            <Button Grid.Column="1" Margin="5" Height="25" Name="ClearGraph">Clean graphic</Button>
+            <Button Grid.Column="2" Margin="5" Height="25" Name="UploadPic">Save pic as...</Button>
+            <Button Grid.Column="3" Margin="5" Height="25" Name="UploadReport">Save report as...</Button>
+        </Grid>
+        
+        <Canvas Margin="15" Grid.Row="2" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
 
     </Grid>
 </Window>

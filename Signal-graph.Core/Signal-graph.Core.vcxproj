@@ -133,17 +133,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseViewModel.h" />
-    <ClInclude Include="ReportDataViewModel.h" />
+    <ClInclude Include="DataProcessing.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="ReportData.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
-    <ClCompile Include="BaseViewModel.cpp" />
-    <ClCompile Include="ReportData.cpp" />
-    <ClCompile Include="ReportDataViewModel.cpp" />
+    <ClCompile Include="DataProcessing.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -72,7 +72,8 @@
             <Button Grid.Column="3" Margin="5" Height="25" Name="UploadReport" Command="{Binding SaveDocCommand}">Save report as...</Button>
         </Grid>
         
-        <Canvas Margin="15" Grid.Row="2" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+        <!--<local:GraphCanvas Margin="15" Grid.Row="2" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />-->
+        <Image Source="{Binding GraphSource}" Margin="15" Grid.Row="2" />
 
     </Grid>
 </Window>

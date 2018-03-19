@@ -3,6 +3,7 @@
 
 using namespace System;
 using namespace System::Collections::Generic;
+using namespace System::Drawing;
 
 
 namespace SignalgraphCore {
@@ -35,6 +36,7 @@ namespace SignalgraphCore {
 		void SortKeyPointsByArea();
 		List<KeyPoint^> ^ GetKeyPoints();
 
+		void DrawGrid(Bitmap ^ graph);
 	};
 }
 

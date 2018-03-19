@@ -66,14 +66,17 @@ void SignalgraphCore::DataProcessing::ClearKeyPoints()
 bool SignalgraphCore::DataProcessing::AddKeyPoint(String ^ _holdTime, String ^ _area)
 {
 	float hTime, ar;
+	_holdTime = _holdTime->Replace('.', ',');
 	if (!float::TryParse(_holdTime, hTime)) return false;
+	_area = _area->Replace('.', ',');
 	if (!float::TryParse(_area, ar)) return false;
 	
-	auto parts = _area->Split('.');
+	auto parts = _area->Split(',');
 	long limit = Math::Pow(10, 7 - parts[parts->Length - 1]->Length);
 	
 	Random^ rnd = gcnew Random();
-	double trueArea = ar * Math::Pow(10, 7) + rnd->Next(-limit, limit);
+	auto remainder = rnd->Next(-limit / 2, limit / 2);
+	double trueArea = (int)(ar * Math::Pow(10, 7)) + remainder;
 
 	keyPoints->Add(gcnew KeyPoint(hTime, trueArea));
 	return true;
@@ -92,6 +95,11 @@ void SignalgraphCore::DataProcessing::SortKeyPointsByArea()
 List<SignalgraphCore::KeyPoint^>^ SignalgraphCore::DataProcessing::GetKeyPoints()
 {
 	return keyPoints;
+}
+
+void SignalgraphCore::DataProcessing::DrawGrid(Bitmap ^ graph)
+{
+	Graphics ^g = Graphics::FromImage(graph);
 }
 
 

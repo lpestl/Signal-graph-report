@@ -1,11 +1,14 @@
 ﻿using SignalgraphCore;
 using System;
+using System.Drawing;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace Signal_graph_report.src.ViewModel
 {
@@ -14,6 +17,7 @@ namespace Signal_graph_report.src.ViewModel
         private string date;
         private string time;
         private string code;
+        private Bitmap graph;
 
         private ObservableCollection<KeyPointViewModel> keyPoints;
         public ObservableCollection<KeyPointViewModel> KeyPoints {
@@ -30,6 +34,14 @@ namespace Signal_graph_report.src.ViewModel
                 new KeyPointViewModel { HoldTime = "", Area = "" },
                 new KeyPointViewModel { HoldTime = "", Area = "" }
             };
+
+            graph = new Bitmap(1501, 578);
+            using (Graphics g = Graphics.FromImage(graph))
+            {
+                g.Clear(Color.White);
+            }
+
+            DataProcessing dataProcessing = DataProcessing.GetInstance();
         }
 
         private RelayCommand drawCommand;
@@ -41,16 +53,6 @@ namespace Signal_graph_report.src.ViewModel
                     (drawCommand = new RelayCommand(obj =>
                     {
                         DataProcessing dataProcessing = DataProcessing.GetInstance();
-
-                        if (dataProcessing.SetDateTime(date + " " + time))
-                        {
-                            DateTime dt = dataProcessing.GetDateTime();
-                            MessageBox.Show(dt.ToString("dd.MM.yyyy hh:mm"), "Date Time", MessageBoxButton.OK, MessageBoxImage.Information);
-                        } else
-                        {
-                            MessageBox.Show("Date or Time not can parse!", "Error date or time parse", MessageBoxButton.OK, MessageBoxImage.Error);
-                            return;
-                        }
 
                         dataProcessing.ClearKeyPoints();
                         if (dataProcessing.AddKeyPoint(keyPoints[0].HoldTime, keyPoints[0].Area))
@@ -136,5 +138,23 @@ namespace Signal_graph_report.src.ViewModel
             }
         }
 
+        public BitmapImage GraphSource
+        {
+            get
+            {
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    graph.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+                    memory.Position = 0;
+                    BitmapImage bitmapimage = new BitmapImage();
+                    bitmapimage.BeginInit();
+                    bitmapimage.StreamSource = memory;
+                    bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmapimage.EndInit();
+
+                    return bitmapimage;
+                }
+            }
+        }
     }
 }

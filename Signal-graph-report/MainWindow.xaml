@@ -66,10 +66,10 @@
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
             
-            <Button Grid.Column="0" Margin="5" Height="25" Name="DrawGraph" Command="{Binding MessageBoxCommand}">Draw graphic</Button>
-            <Button Grid.Column="1" Margin="5" Height="25" Name="ClearGraph">Clean graphic</Button>
-            <Button Grid.Column="2" Margin="5" Height="25" Name="UploadPic">Save pic as...</Button>
-            <Button Grid.Column="3" Margin="5" Height="25" Name="UploadReport">Save report as...</Button>
+            <Button Grid.Column="0" Margin="5" Height="25" Name="DrawGraph" Command="{Binding DrawCommand}">Draw graphic</Button>
+            <Button Grid.Column="1" Margin="5" Height="25" Name="ClearGraph" Command="{Binding ClearCommand}">Clean graphic</Button>
+            <Button Grid.Column="2" Margin="5" Height="25" Name="UploadPic" Command="{Binding SavePicCommand}">Save pic as...</Button>
+            <Button Grid.Column="3" Margin="5" Height="25" Name="UploadReport" Command="{Binding SaveDocCommand}">Save report as...</Button>
         </Grid>
         
         <Canvas Margin="15" Grid.Row="2" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />

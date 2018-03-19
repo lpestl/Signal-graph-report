@@ -24,6 +24,9 @@
     <ClInclude Include="DataProcessing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="KeyPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">

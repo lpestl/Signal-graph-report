@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SignalgraphCore;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -31,26 +32,79 @@ namespace Signal_graph_report.src.ViewModel
             };
         }
 
-        /// <summary>
-        /// Temporary command
-        /// </summary>
-        private RelayCommand messageBoxCommand;
-        public RelayCommand MessageBoxCommand
+        private RelayCommand drawCommand;
+        public RelayCommand DrawCommand
         {
             get
             {
-                return messageBoxCommand ??
-                    (messageBoxCommand = new RelayCommand(obj =>
+                return drawCommand ??
+                    (drawCommand = new RelayCommand(obj =>
                     {
-                        String msg = KeyPoints[0].HoldTime + " : " + KeyPoints[0].Area + "\n";
-                        msg += KeyPoints[1].HoldTime + " : " + KeyPoints[1].Area + "\n";
-                        msg += KeyPoints[2].HoldTime + " : " + KeyPoints[2].Area + "\n";
-                        msg += KeyPoints[3].HoldTime + " : " + KeyPoints[3].Area + "\n";
+                        DataProcessing dataProcessing = DataProcessing.GetInstance();
 
-                        MessageBox.Show(msg, "Current DATA", MessageBoxButton.OK, MessageBoxImage.Information);
+                        if (dataProcessing.SetDateTime(date + " " + time))
+                        {
+                            DateTime dt = dataProcessing.GetDateTime();
+                            MessageBox.Show(dt.ToString("dd.MM.yyyy hh:mm"), "Date Time", MessageBoxButton.OK, MessageBoxImage.Information);
+                        } else
+                        {
+                            MessageBox.Show("Date or Time not can parse!", "Error date or time parse", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+
+                        dataProcessing.ClearKeyPoints();
+                        if (dataProcessing.AddKeyPoint(keyPoints[0].HoldTime, keyPoints[0].Area))
+                        {
+                            List<SignalgraphCore.KeyPoint> points = dataProcessing.GetKeyPoints();
+
+                            MessageBox.Show(points[0].GetHoldTime().ToString() + " " + points[0].GetArea().ToString(), "Tadam!!!", MessageBoxButton.OK, MessageBoxImage.Information);
+                        } else
+                        {
+                            MessageBox.Show("WTF. KeyPoints not parsed!", "Error key points", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
                     }));
             }
         }
+
+        private RelayCommand clearCommand;
+        public RelayCommand CleatCommand
+        {
+            get
+            {
+                return clearCommand ??
+                    (clearCommand = new RelayCommand(obj =>
+                    {
+
+                    }));
+            }
+        }
+
+        private RelayCommand savePicCommand;
+        public RelayCommand SavePicCommand
+        {
+            get
+            {
+                return savePicCommand ??
+                    (savePicCommand = new RelayCommand(obj =>
+                    {
+
+                    }));
+            }
+        }
+
+        private RelayCommand saveDocCommand;
+        public RelayCommand SaveDocCommand
+        {
+            get
+            {
+                return saveDocCommand ??
+                    (saveDocCommand = new RelayCommand(obj =>
+                    {
+
+                    }));
+            }
+        }        
 
         public string Date
         {

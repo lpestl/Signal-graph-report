@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Signal-graph-report", "Signal-graph-report.csproj", "{92599C56-DEBC-4684-8826-34D92767DDCC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F33CE52B-D4F0-4BB8-97F7-95029C2B966F} = {F33CE52B-D4F0-4BB8-97F7-95029C2B966F}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Signal-graph.Core", "..\Signal-graph.Core\Signal-graph.Core.vcxproj", "{F33CE52B-D4F0-4BB8-97F7-95029C2B966F}"
 EndProject

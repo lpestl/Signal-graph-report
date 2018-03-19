@@ -42,6 +42,7 @@ namespace Signal_graph_report.src.ViewModel
             }
 
             DataProcessing dataProcessing = DataProcessing.GetInstance();
+            dataProcessing.DrawGrid(graph);
         }
 
         private RelayCommand drawCommand;

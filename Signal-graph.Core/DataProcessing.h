@@ -1,5 +1,6 @@
 #pragma once
 #include "KeyPoint.h"
+#include "Result.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -7,6 +8,9 @@ using namespace System::Drawing;
 
 
 namespace SignalgraphCore {
+
+	Drawing::Rectangle rect = Drawing::Rectangle(135, 15, 1240, 490);
+
 	public ref class DataProcessing : System::Object
 	{
 	private:
@@ -15,6 +19,7 @@ namespace SignalgraphCore {
 		DateTime dateTime;
 		String ^code;
 		List<KeyPoint^> ^keyPoints;
+		List<Result^> ^resultTable;
 
 	protected:
 		DataProcessing();
@@ -36,7 +41,9 @@ namespace SignalgraphCore {
 		void SortKeyPointsByArea();
 		List<KeyPoint^> ^ GetKeyPoints();
 
+		void ClearGraph(Bitmap ^ graph);
 		void DrawGrid(Bitmap ^ graph);
+		void DrawGraph(Bitmap ^ graph);
 	};
 }
 

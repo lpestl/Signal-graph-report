@@ -33,7 +33,7 @@
 
                 <Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Time:</Label>
                 <!--<TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Time}" />-->
-                <xctk:MaskedTextBox x:Name="maskTime" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Mask="00:00" Text="{Binding Time}" />
+                <xctk:MaskedTextBox x:Name="maskTime" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Mask="00:00:00" Text="{Binding Time}" />
 
                 <Label Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">File name:</Label>
                 <!--<TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Code}" />-->

@@ -36,12 +36,9 @@ namespace Signal_graph_report.src.ViewModel
             };
 
             graph = new Bitmap(1501, 578);
-            using (Graphics g = Graphics.FromImage(graph))
-            {
-                g.Clear(Color.White);
-            }
-
+            
             DataProcessing dataProcessing = DataProcessing.GetInstance();
+            dataProcessing.ClearGraph(graph);
             dataProcessing.DrawGrid(graph);
         }
 
@@ -54,18 +51,11 @@ namespace Signal_graph_report.src.ViewModel
                     (drawCommand = new RelayCommand(obj =>
                     {
                         DataProcessing dataProcessing = DataProcessing.GetInstance();
+                        dataProcessing.ClearGraph(graph);
+                        dataProcessing.DrawGraph(graph);
+                        dataProcessing.DrawGrid(graph);
 
-                        dataProcessing.ClearKeyPoints();
-                        if (dataProcessing.AddKeyPoint(keyPoints[0].HoldTime, keyPoints[0].Area))
-                        {
-                            List<SignalgraphCore.KeyPoint> points = dataProcessing.GetKeyPoints();
-
-                            MessageBox.Show(points[0].GetHoldTime().ToString() + " " + points[0].GetArea().ToString(), "Tadam!!!", MessageBoxButton.OK, MessageBoxImage.Information);
-                        } else
-                        {
-                            MessageBox.Show("WTF. KeyPoints not parsed!", "Error key points", MessageBoxButton.OK, MessageBoxImage.Error);
-                            return;
-                        }
+                        OnPropertyChanged("GraphSource");
                     }));
             }
         }
@@ -78,7 +68,11 @@ namespace Signal_graph_report.src.ViewModel
                 return clearCommand ??
                     (clearCommand = new RelayCommand(obj =>
                     {
+                        DataProcessing dataProcessing = DataProcessing.GetInstance();
+                        dataProcessing.ClearGraph(graph);
+                        dataProcessing.DrawGrid(graph);
 
+                        OnPropertyChanged("GraphSource");
                     }));
             }
         }

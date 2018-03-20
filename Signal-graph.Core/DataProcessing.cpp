@@ -10,6 +10,7 @@ SignalgraphCore::DataProcessing::DataProcessing()
 {
 	code = String::Empty;
 	keyPoints = gcnew List<KeyPoint^>();
+	resultTable = gcnew List<Result^>();
 }
 
 SignalgraphCore::DataProcessing::~DataProcessing()
@@ -84,7 +85,17 @@ bool SignalgraphCore::DataProcessing::AddKeyPoint(String ^ _holdTime, String ^ _
 
 void SignalgraphCore::DataProcessing::SortKeyPointsByHoldTime()
 {
-	throw gcnew System::NotImplementedException();
+	for (auto i = 0; i < keyPoints->Count; ++i) {
+		int n_min = i;
+		for (auto j = i; j < keyPoints->Count; ++j) {
+			if (keyPoints[n_min]->GetHoldTime() > keyPoints[j]->GetHoldTime()) {
+				n_min = j;
+			}
+		}
+		KeyPoint^ temp = keyPoints[n_min];
+		keyPoints[n_min] = keyPoints[i];
+		keyPoints[i] = temp;
+	}
 }
 
 void SignalgraphCore::DataProcessing::SortKeyPointsByArea()
@@ -97,13 +108,26 @@ List<SignalgraphCore::KeyPoint^>^ SignalgraphCore::DataProcessing::GetKeyPoints(
 	return keyPoints;
 }
 
+void SignalgraphCore::DataProcessing::ClearGraph(Bitmap ^ graph)
+{
+	Graphics ^g = Graphics::FromImage(graph);
+
+	g->Clear(Color::White);
+}
+
 void SignalgraphCore::DataProcessing::DrawGrid(Bitmap ^ graph)
 {
 	Graphics ^g = Graphics::FromImage(graph);
 
 	// Draw grid rect
 	Pen^ blackpen = gcnew Pen(Color::Black);
-	Drawing::Rectangle rect = Drawing::Rectangle(135, 15, 1240, 490);
+	SolidBrush^ whiteBrush = gcnew SolidBrush(Color::White);	
+	
+	g->FillRectangle(whiteBrush, Drawing::Rectangle(0, 0, graph->Width, rect.Y));
+	g->FillRectangle(whiteBrush, Drawing::Rectangle(0, 0, rect.X, graph->Height)); 
+	g->FillRectangle(whiteBrush, Drawing::Rectangle(0, rect.Y + rect.Height, graph->Width, graph->Height - (rect.Y + rect.Height)));
+	g->FillRectangle(whiteBrush, Drawing::Rectangle(rect.X + rect.Width, 0, graph->Width - (rect.X + rect.Width), graph->Height));
+
 	g->DrawRectangle(blackpen, rect);
 
 	// Draw notches on the axis
@@ -196,6 +220,42 @@ void SignalgraphCore::DataProcessing::DrawGrid(Bitmap ^ graph)
 	nchFormat->LineAlignment = StringAlignment::Center;
 
 	g->DrawString("Ближний сигнал", boldMainFont, grayBrush, Point(rect.X + 115, rect.Y + 15), nchFormat);
+}
+
+void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
+{
+	Graphics ^g = Graphics::FromImage(graph);
+
+	Pen^ greenPen = gcnew Pen(Color::DarkGreen);
+	Pen^ redPen = gcnew Pen(Color::Red);
+	Pen^ bluePen = gcnew Pen(Color::Blue);
+
+	Random^ rnd = gcnew Random();
+
+	double ratioX = (double)rect.Width / 35;
+	double ratioY = (double)rect.Height / 2000;
+
+	// Main line graph params ( y(x) = -1/z * (x-mX)^2 + mY
+	float z = 12 + 20 * rnd->NextDouble(); // rnd->Next(12, 32);
+	float mx = 15 + 10 * rnd->NextDouble(); // rnd->Next(15, 25);
+	float my = 260 + 40 * rnd->NextDouble(); // rnd->Next(260, 300);
+
+	float offsetX = 0;
+	float offsetY = (float)(-1) / z * mx * mx + my;
+	Point pStart = Point(rect.X + offsetX * ratioX, rect.Y + rect.Height - offsetY * ratioY);
+
+	while (offsetX <= 35) {		
+		float deltaOffsetX = (float)35 / (60 + rnd->NextDouble() * 20);
+		
+		offsetX += deltaOffsetX;
+		offsetY = (float)(-1) / z * (offsetX - mx) * (offsetX - mx) + my;
+		Point pEnd = Point(rect.X + offsetX * ratioX, rect.Y + rect.Height - offsetY * ratioY);
+
+		g->DrawLine(greenPen, pStart, pEnd);
+
+		pStart = pEnd;
+	}
+
 }
 
 

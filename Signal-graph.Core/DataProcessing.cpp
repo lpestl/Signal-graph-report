@@ -175,7 +175,27 @@ void SignalgraphCore::DataProcessing::DrawGrid(Bitmap ^ graph)
 	g->DrawString("Volts", mainFont, blackBrush, Point((-1) * (rect.Y + rect.Height / 2), graph->Width - 1.5 * bigNotchLen), ccvFormat);
 	g->ResetTransform();
 
-	//g->DrawString("Минут")
+	g->DrawString("Минут", mainFont, blackBrush, Point(rect.X + rect.Width / 2, graph->Height - 1.5 * bigNotchLen), ccvFormat);
+
+
+	Font^ bigFont = gcnew Font("Arial", 18);
+	StringFormat^ nnhFormat = gcnew StringFormat();
+	nnhFormat->Alignment = StringAlignment::Near;
+	nnhFormat->LineAlignment = StringAlignment::Far;
+
+	g->DrawString("Время удерживания", bigFont, blackBrush, Point(rect.X + 50, rect.Y + 60), nnhFormat);
+
+	Pen^ greenpen = gcnew Pen(Color::DarkGreen);
+	SolidBrush^ grayBrush = gcnew SolidBrush(Color::LightGray);
+
+	g->DrawLine(greenpen, Point(rect.X + 50, rect.Y + 15), Point(rect.X + 100, rect.Y + 15));
+
+	Font^ boldMainFont = gcnew Font("Arial", 14, FontStyle::Bold);
+	StringFormat^ nchFormat = gcnew StringFormat();
+	nchFormat->Alignment = StringAlignment::Near;
+	nchFormat->LineAlignment = StringAlignment::Center;
+
+	g->DrawString("Ближний сигнал", boldMainFont, grayBrush, Point(rect.X + 115, rect.Y + 15), nchFormat);
 }
 
 

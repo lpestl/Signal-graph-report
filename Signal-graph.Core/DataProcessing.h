@@ -10,6 +10,8 @@ using namespace System::Drawing;
 namespace SignalgraphCore {
 
 	Drawing::Rectangle rect = Drawing::Rectangle(135, 15, 1240, 490);
+	double ratioX = (double)rect.Width / 35;
+	double ratioY = (double)rect.Height / 2000;
 
 	public ref class DataProcessing : System::Object
 	{
@@ -40,10 +42,18 @@ namespace SignalgraphCore {
 		void SortKeyPointsByHoldTime();
 		void SortKeyPointsByArea();
 		List<KeyPoint^> ^ GetKeyPoints();
+		
+		List<Result^> ^GetResult();
 
 		void ClearGraph(Bitmap ^ graph);
 		void DrawGrid(Bitmap ^ graph);
 		void DrawGraph(Bitmap ^ graph);
+
+		void DrawPick(double x0, double y0, double x1, double y1, Graphics^ g);
+
+		static int ToPixelX(double x);
+		static int ToPixelY(double y);
+		static Point ToPixel(double x, double y);
 	};
 }
 

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <msclr/marshal_cppstd.h>
 #include "DataProcessing.h"
+#include "Result.h"
 
 using namespace System;
 using namespace System::Windows;
@@ -106,6 +107,11 @@ void SignalgraphCore::DataProcessing::SortKeyPointsByArea()
 List<SignalgraphCore::KeyPoint^>^ SignalgraphCore::DataProcessing::GetKeyPoints()
 {
 	return keyPoints;
+}
+
+List<SignalgraphCore::Result^> ^SignalgraphCore::DataProcessing::GetResult()
+{
+	return resultTable;
 }
 
 void SignalgraphCore::DataProcessing::ClearGraph(Bitmap ^ graph)
@@ -224,38 +230,244 @@ void SignalgraphCore::DataProcessing::DrawGrid(Bitmap ^ graph)
 
 void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 {
+	resultTable->Clear();
+
 	Graphics ^g = Graphics::FromImage(graph);
 
 	Pen^ greenPen = gcnew Pen(Color::DarkGreen);
 	Pen^ redPen = gcnew Pen(Color::Red);
 	Pen^ bluePen = gcnew Pen(Color::Blue);
 
+	// Font and brash for text on notches
+	Font^ mainFont = gcnew Font("Arial", 18);
+	SolidBrush^ blackBrush = gcnew SolidBrush(Color::Black);
+	// Set format of string.
+	StringFormat^ mainFormat = gcnew StringFormat();
+	mainFormat->Alignment = StringAlignment::Near;
+	mainFormat->LineAlignment = StringAlignment::Center;
+
 	Random^ rnd = gcnew Random();
-
-	double ratioX = (double)rect.Width / 35;
-	double ratioY = (double)rect.Height / 2000;
-
+	
 	// Main line graph params ( y(x) = -1/z * (x-mX)^2 + mY
-	float z = 12 + 20 * rnd->NextDouble(); // rnd->Next(12, 32);
-	float mx = 15 + 10 * rnd->NextDouble(); // rnd->Next(15, 25);
-	float my = 260 + 40 * rnd->NextDouble(); // rnd->Next(260, 300);
+	float z = 20;
+	float mx = 25;
+	float my = 230 + 20 * rnd->NextDouble();
 
 	float offsetX = 0;
 	float offsetY = (float)(-1) / z * mx * mx + my;
-	Point pStart = Point(rect.X + offsetX * ratioX, rect.Y + rect.Height - offsetY * ratioY);
 
+	Point pStart = ToPixel(offsetX, offsetY);
+
+	int projectionLen = 25;
+	float smaller;
+	
 	while (offsetX <= 35) {		
-		float deltaOffsetX = (float)35 / (60 + rnd->NextDouble() * 20);
+		float dX;
 		
-		offsetX += deltaOffsetX;
-		offsetY = (float)(-1) / z * (offsetX - mx) * (offsetX - mx) + my;
-		Point pEnd = Point(rect.X + offsetX * ratioX, rect.Y + rect.Height - offsetY * ratioY);
+		float lastOffsetX = offsetX;
+		float lastOffsetY = offsetY;
 
-		g->DrawLine(greenPen, pStart, pEnd);
+		float maxX = offsetX;
+		float maxY = offsetY;
+
+		if (offsetX < keyPoints[0]->GetHoldTime()) {
+			dX = (float)35 / (60 + rnd->NextDouble() * 20);
+
+			offsetX += dX;
+			offsetY = (float)(-1) / z * (offsetX - mx) * (offsetX - mx) + my;
+				
+			if (offsetX >= keyPoints[0]->GetHoldTime()) {
+				Result^ res = gcnew Result();
+				res->Time = keyPoints[0]->GetHoldTime();
+				res->Area = keyPoints[0]->GetArea();
+				res->Height = res->Area * 0.141f;
+
+				double y = (double)res->Height / 13500000 * 2000;
+
+				maxX = res->Time;
+				maxY = y;
+
+				offsetY = offsetY + rnd->NextDouble() * (y-offsetY);
+
+				DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
+				DrawPick(maxX, maxY, offsetX, offsetY, g);
+
+				resultTable->Add(res);
+			}
+		}
+		else if (offsetX < keyPoints[1]->GetHoldTime()) {
+			dX = 0.05f + 0.3f * rnd->NextDouble();
+			
+			offsetX += dX;
+			offsetY = 900 + 600 * rnd->NextDouble();
+			
+			if (offsetX >= keyPoints[1]->GetHoldTime()) {
+				Result^ res = gcnew Result();
+				res->Time = keyPoints[1]->GetHoldTime();
+				res->Area = keyPoints[1]->GetArea();
+				res->Height = res->Area * 0.0787f;
+
+				double y = (double)res->Height / 13500000 * 2000;
+
+				maxX = res->Time;
+				maxY = y;
+
+				offsetY = offsetY - rnd->NextDouble() * (y - offsetY);
+
+				DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
+				DrawPick(maxX, maxY, offsetX, offsetY, g);
+
+				resultTable->Add(res);
+
+				smaller = 900;
+			}
+			else {
+				Result^ res = gcnew Result();
+				res->Time = lastOffsetX + rnd->NextDouble() * dX;
+				double y = max(lastOffsetY, offsetY) + 600 * rnd->NextDouble();
+				res->Height = y / 2000 * 13500000;
+				res->Area = (double)res->Height / 0.0787f;
+
+				maxX = res->Time;
+				maxY = y;
+
+				DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
+				DrawPick(maxX, maxY, offsetX, offsetY, g);
+
+				resultTable->Add(res);
+			}
+		}
+		else {
+			if (((keyPoints->Count == 4) && (offsetX < keyPoints[3]->GetHoldTime()))
+				|| (((keyPoints->Count == 5) && (offsetX < keyPoints[4]->GetHoldTime())))) {
+				dX = 0.2f + 0.3f * rnd->NextDouble();
+
+				offsetX += dX;
+				offsetY = (float)(-1) / z * (offsetX - mx) * (offsetX - mx) + my + smaller * rnd->NextDouble();
+
+				if (((keyPoints->Count == 4) && (offsetX >= keyPoints[3]->GetHoldTime()))
+					|| ((keyPoints->Count == 5) && (offsetX >= keyPoints[4]->GetHoldTime()))) {
+					Result^ res = gcnew Result();
+					if (keyPoints->Count == 4) {
+						res->Time = keyPoints[3]->GetHoldTime();
+						res->Area = keyPoints[3]->GetArea();
+					}
+					else {
+						res->Time = keyPoints[4]->GetHoldTime();
+						res->Area = keyPoints[4]->GetArea();
+					}
+					//res->Height = res->Area * 0.0455f;
+
+					//double y = (double)res->Height / 13500000 * 2000;
+					double y = max(lastOffsetY, offsetY) + smaller * rnd->NextDouble();
+					res->Height = res->Area * 0.0455f;
+
+					maxX = res->Time;
+					maxY = y;
+
+					offsetY = offsetY - rnd->NextDouble() * (y - offsetY);
+
+					DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
+					DrawPick(maxX, maxY, offsetX, offsetY, g);
+
+					resultTable->Add(res);
+				}
+				else {
+					Result^ res = gcnew Result();
+					res->Time = lastOffsetX + rnd->NextDouble() * dX;
+					double y = max(lastOffsetY, offsetY) + 200 * rnd->NextDouble();
+					res->Height = y / 2000 * 13500000;
+					res->Area = (double)res->Height / 0.0455f;
+
+					maxX = res->Time;
+					maxY = y;
+
+					DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
+					DrawPick(maxX, maxY, offsetX, offsetY, g);
+
+					resultTable->Add(res);
+				}
+
+				smaller = smaller / 8 * 7;
+			}
+			else {
+				dX = 0.3f + 0.9f * rnd->NextDouble();
+
+				offsetX += dX;
+				offsetY = (float)(-1) / z * (lastOffsetX - mx) * (lastOffsetX - mx) + my;
+
+				Result^ res = gcnew Result();
+				res->Time = lastOffsetX + rnd->NextDouble() * dX;
+				double y = max(lastOffsetY, offsetY) + 20 * rnd->NextDouble();
+				res->Height = y / 2000 * 13500000;
+				res->Area = (double)res->Height / 0.0455f;
+
+				maxX = res->Time;
+				maxY = y;
+
+				DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
+				DrawPick(maxX, maxY, offsetX, offsetY, g);
+
+				resultTable->Add(res);
+			}
+		}		
+		
+		Point pEnd = ToPixel(offsetX, offsetY);
+
+		auto mainLineY1 = (float)(-1) / z * (lastOffsetX - mx) * (lastOffsetX - mx) + my;
+		mainLineY1 = ToPixelY(mainLineY1);
+		auto mainLineY2 = (float)(-1) / z * (offsetX - mx) * (offsetX - mx) + my;
+		mainLineY2 = ToPixelY(mainLineY2);
+		auto maxLineY = (float)(-1) / z * (maxX - mx) * (maxX - mx) + my;
+
+		if (ToPixelY(maxLineY) != ToPixelY(maxY)) {
+		//if (((int)mainLineY1 != pStart.Y) || ((int)mainLineY2 != pEnd.Y)) {
+			g->DrawLine(redPen, pStart, Point(pStart.X, pStart.Y + projectionLen));
+			g->DrawLine(bluePen, pEnd, Point(pEnd.X, pEnd.Y - projectionLen));
+			g->DrawLine(redPen, Point(pStart.X, mainLineY1), Point(pEnd.X, mainLineY2));
+			g->DrawLine(redPen, pStart, Point(pStart.X, mainLineY1));
+			g->DrawLine(redPen, pEnd, Point(pEnd.X, mainLineY2));
+			
+			if (maxY < 1600) g->TranslateTransform(ToPixelX(maxX), ToPixelY(maxY));
+			else g->TranslateTransform(ToPixelX(maxX), ToPixelY(0));
+			g->RotateTransform(-90);
+			g->DrawString(maxX.ToString("0.000"), mainFont, blackBrush, Point(projectionLen, 0), mainFormat);
+			g->ResetTransform();
+		}
+		else {
+			g->DrawLine(greenPen, pStart, pEnd);
+		}
 
 		pStart = pEnd;
 	}
 
 }
 
+void SignalgraphCore::DataProcessing::DrawPick(double x0, double y0, double x1, double y1, Graphics^ g)
+{
+	Random^ rnd = gcnew Random();
 
+	double px0 = x0 + rnd->NextDouble() * (x1 - x0);
+	double py0 = y0;
+	double px1 = x1 - rnd->NextDouble() * (x1 - px0);
+	double py1 = y1;
+
+	Pen^ greenPen = gcnew Pen(Color::DarkGreen);
+	
+	g->DrawBezier(greenPen, ToPixel(x0, y0), ToPixel(px0, py0), ToPixel(px1, py1), ToPixel(x1, y1));
+}
+
+int SignalgraphCore::DataProcessing::ToPixelX(double x)
+{
+	return Math::Round(rect.X + x * ratioX);
+}
+
+int SignalgraphCore::DataProcessing::ToPixelY(double y)
+{
+	return Math::Round(rect.Y + rect.Height - y * ratioY);
+}
+
+Point SignalgraphCore::DataProcessing::ToPixel(double x, double y)
+{
+	return Point(ToPixelX(x), ToPixelY(y));
+}

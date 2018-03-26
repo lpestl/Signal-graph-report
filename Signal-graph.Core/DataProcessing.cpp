@@ -280,9 +280,9 @@ void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 				Result^ res = gcnew Result();
 				res->Time = keyPoints[0]->GetHoldTime();
 				res->Area = keyPoints[0]->GetArea();
-				res->Height = res->Area * 0.141f;
+				res->Height = res->Area * 0.141f /*- 4644900*/;
 
-				double y = (double)res->Height / 13500000 * 2000;
+				double y = offsetY + Math::Abs((double)res->Height / 13500000 * 2000 - offsetY) * rnd->NextDouble();
 
 				maxX = res->Time;
 				maxY = y;
@@ -305,14 +305,14 @@ void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 				Result^ res = gcnew Result();
 				res->Time = keyPoints[1]->GetHoldTime();
 				res->Area = keyPoints[1]->GetArea();
-				res->Height = res->Area * 0.0787f;
+				res->Height = res->Area * 0.0787f /*- 155040*/;
 
-				double y = (double)res->Height / 13500000 * 2000;
+				double y = max(lastOffsetY, offsetY) + Math::Abs((double)res->Height / 13500000 * 2000 - max(lastOffsetY, offsetY)) * rnd->NextDouble();
 
 				maxX = res->Time;
 				maxY = y;
 
-				offsetY = offsetY - rnd->NextDouble() * (y - offsetY);
+				//offsetY = offsetY - rnd->NextDouble() * (y - offsetY);
 
 				DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
 				DrawPick(maxX, maxY, offsetX, offsetY, g);
@@ -323,10 +323,13 @@ void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 			}
 			else {
 				Result^ res = gcnew Result();
-				res->Time = lastOffsetX + rnd->NextDouble() * dX;
-				double y = max(lastOffsetY, offsetY) + 600 * rnd->NextDouble();
-				res->Height = y / 2000 * 13500000;
-				res->Area = (double)res->Height / 0.0787f;
+				res->Time = dX / 3 * rnd->NextDouble() + lastOffsetX + dX / 3;
+
+				res->Area = rnd->Next(10000000, 500000000);
+				//if (s >= resultTable[resultTable->Count - 1]->Area) res->Area = resultTable[resultTable->Count - 1]->Area + Math::Abs(s);
+				//else res->Area = resultTable[resultTable->Count - 1]->Area + s;
+				res->Height = res->Area * 0.141f /*- 4644900*/;
+				double y = max(lastOffsetY, offsetY) + Math::Abs((double)res->Height / 13500000 * 2000 - max(lastOffsetY, offsetY)) * rnd->NextDouble() / 2;
 
 				maxX = res->Time;
 				maxY = y;
@@ -359,13 +362,14 @@ void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 					//res->Height = res->Area * 0.0455f;
 
 					//double y = (double)res->Height / 13500000 * 2000;
-					double y = max(lastOffsetY, offsetY) + smaller * rnd->NextDouble();
-					res->Height = res->Area * 0.0455f;
+					res->Height = res->Area * 0.0455 + 14769.6971;
+					//double y = max(lastOffsetY, offsetY) + smaller * rnd->NextDouble();
+					double y = max(lastOffsetY, offsetY) + Math::Abs((double)res->Height / 13500000 * 2000 - max(lastOffsetY, offsetY)) * rnd->NextDouble();
 
 					maxX = res->Time;
 					maxY = y;
 
-					offsetY = offsetY - rnd->NextDouble() * (y - offsetY);
+					//offsetY = offsetY - rnd->NextDouble() * (y - offsetY);
 
 					DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
 					DrawPick(maxX, maxY, offsetX, offsetY, g);
@@ -374,10 +378,12 @@ void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 				}
 				else {
 					Result^ res = gcnew Result();
-					res->Time = lastOffsetX + rnd->NextDouble() * dX;
-					double y = max(lastOffsetY, offsetY) + 200 * rnd->NextDouble();
-					res->Height = y / 2000 * 13500000;
-					res->Area = (double)res->Height / 0.0455f;
+					res->Time = dX / 3 * rnd->NextDouble() + lastOffsetX + dX / 3;
+					res->Area = rnd->Next(100000, 3000000);
+					//if (s >= resultTable[resultTable->Count - 1]->Area) res->Area = resultTable[resultTable->Count - 1]->Area + Math::Abs(s);
+					//else res->Area = resultTable[resultTable->Count - 1]->Area + s;
+					res->Height = res->Area * 0.0455 + 14769.6971;
+					double y = max(lastOffsetY, offsetY) + Math::Abs((double)res->Height / 13500000 * 2000 - max(lastOffsetY, offsetY)) * rnd->NextDouble();
 
 					maxX = res->Time;
 					maxY = y;
@@ -397,10 +403,12 @@ void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 				offsetY = (float)(-1) / z * (lastOffsetX - mx) * (lastOffsetX - mx) + my;
 
 				Result^ res = gcnew Result();
-				res->Time = lastOffsetX + rnd->NextDouble() * dX;
+				res->Time = dX / 3 * rnd->NextDouble() + lastOffsetX + dX / 3;
+				res->Area = rnd->Next(1000, 20000000);
+				//if (s >= resultTable[resultTable->Count - 1]->Area) res->Area = resultTable[resultTable->Count - 1]->Area + Math::Abs(s);
+				//else res->Area = resultTable[resultTable->Count - 1]->Area + s;
+				res->Height = res->Area * 0.0455 + 14769.6971;
 				double y = max(lastOffsetY, offsetY) + 20 * rnd->NextDouble();
-				res->Height = y / 2000 * 13500000;
-				res->Area = (double)res->Height / 0.0455f;
 
 				maxX = res->Time;
 				maxY = y;
@@ -446,15 +454,27 @@ void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 void SignalgraphCore::DataProcessing::DrawPick(double x0, double y0, double x1, double y1, Graphics^ g)
 {
 	Random^ rnd = gcnew Random();
+	double px0, py0, px1, py1;
 
-	double px0 = x0 + rnd->NextDouble() * (x1 - x0);
-	double py0 = y0;
-	double px1 = x1 - rnd->NextDouble() * (x1 - px0);
-	double py1 = y1;
-
+	if (y1 > y0) {
+		px0 = x0 + rnd->NextDouble() * (x1 - x0);
+		py0 = y0;
+		px1 = x1 - (x1 - px0) / 3 * rnd->NextDouble();
+		py1 = y1;
+	}
+	else {
+		py0 = y0;
+		px1 = x1 - rnd->NextDouble() * (x1 - x0);
+		py1 = y1;
+		px0 = x0 + (px1 - x0) / 3 * rnd->NextDouble();
+	}
 	Pen^ greenPen = gcnew Pen(Color::DarkGreen);
 	
-	g->DrawBezier(greenPen, ToPixel(x0, y0), ToPixel(px0, py0), ToPixel(px1, py1), ToPixel(x1, y1));
+	auto p0 = ToPixel(x0, y0);
+	auto p1 = ToPixel(px0, py0);
+	auto p2 = ToPixel(px1, py1);
+	auto p3 = ToPixel(x1, y1);
+	g->DrawBezier(greenPen, p0, p1, p2, p3);
 }
 
 int SignalgraphCore::DataProcessing::ToPixelX(double x)

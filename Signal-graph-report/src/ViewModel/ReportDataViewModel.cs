@@ -106,12 +106,19 @@ namespace Signal_graph_report.src.ViewModel
                         if (graphKey == null)
                         {
                             graphKey = localMashine.CreateSubKey("GraphProg", true);
-                            graphKey.SetValue("Count", "0");
+                            graphKey.SetValue("PCount", "0");
                         } else
                         {
-                            count = int.Parse(graphKey.GetValue("Count").ToString());
-                            count++;
-                            graphKey.SetValue("Count", count.ToString());
+                            if (graphKey.GetValue("PCount") == null)
+                            {
+                                graphKey.SetValue("PCount", "0");
+                            }
+                            else
+                            {
+                                count = int.Parse(graphKey.GetValue("PCount").ToString());
+                                if (count <= 3) count++;
+                                graphKey.SetValue("PCount", count.ToString());
+                            }
                         }
                         graphKey.Close();
                         localMashine.Close();
@@ -181,13 +188,19 @@ namespace Signal_graph_report.src.ViewModel
                         if (graphKey == null)
                         {
                             graphKey = localMashine.CreateSubKey("GraphProg", true);
-                            graphKey.SetValue("Count", "0");
+                            graphKey.SetValue("DCount", "0");
                         }
                         else
                         {
-                            count = int.Parse(graphKey.GetValue("Count").ToString());
-                            count++;
-                            graphKey.SetValue("Count", count.ToString());
+                            if (graphKey.GetValue("DCount") == null)
+                            {
+                                graphKey.SetValue("DCount", "0");
+                            } else
+                            {
+                                count = int.Parse(graphKey.GetValue("DCount").ToString());
+                                if (count <= 3) count++;
+                                graphKey.SetValue("DCount", count.ToString());
+                            }
                         }
                         graphKey.Close();
                         localMashine.Close();
@@ -263,22 +276,36 @@ namespace Signal_graph_report.src.ViewModel
                             object objBookMark = "PIC";
                             doc.Bookmarks.get_Item(ref objBookMark).Range.Paste();
                            
-                            Word.Table table = doc.Tables[doc.Tables.Count-1];
+                            //Word.Table table = doc.Tables[doc.Tables.Count-1];
                             List<SignalgraphCore.Result> results = dataProcessing.GetResult();
 
                             ulong sa = 0, sh = 0;
+                            String times = String.Empty;
+                            String areas = String.Empty;
+                            String heights = String.Empty;
 
                             foreach (var res in results)
                             {
-                                table.Cell(table.Rows.Count, 1).Range.Text = res.Time.ToString("0.000");
-                                table.Cell(table.Rows.Count, 2).Range.Text = res.Area.ToString();
-                                table.Cell(table.Rows.Count, 4).Range.Text = res.Height.ToString();
+                                //table.Cell(table.Rows.Count, 1).Range.Text = res.Time.ToString("0.000");
+                                //table.Cell(table.Rows.Count, 2).Range.Text = res.Area.ToString();
+                                //table.Cell(table.Rows.Count, 4).Range.Text = res.Height.ToString();
+                                times += res.Time.ToString("0.000") + "\n";
+                                areas += res.Area.ToString() + "\n";
+                                heights += res.Height.ToString() + "\n";
 
                                 sa += res.Area;
                                 sh += res.Height;
 
-                                table.Rows.Add(ref missingObj);
+                                //table.Rows.Add(ref missingObj);
                             }
+
+                            objBookMark = "TIMES";
+                            doc.Bookmarks.get_Item(ref objBookMark).Range.Text = times;
+                            objBookMark = "AREAS";
+                            doc.Bookmarks.get_Item(ref objBookMark).Range.Text = areas;
+                            objBookMark = "HEIGHTS";
+                            doc.Bookmarks.get_Item(ref objBookMark).Range.Text = heights;
+
 
                             foreach (Word.Bookmark mark in wBookmarks)
                             {
@@ -294,17 +321,24 @@ namespace Signal_graph_report.src.ViewModel
                                 }
                             }
 
+                            String aproc = String.Empty;
+                            String hproc = String.Empty;
                             int i = 0;
                             foreach (var res in results)
                             {
                                 double pa = (double)100 / sa * res.Area;
-                                table.Cell(i + 2, 3).Range.Text = pa.ToString("0.00");
+                                //table.Cell(i + 2, 3).Range.Text = pa.ToString("0.00");
+                                aproc += pa.ToString("0.000") + "\n";
 
                                 double ph = (double)100 / sh * res.Height;
-                                table.Cell(i + 2, 5).Range.Text = pa.ToString("0.00");
+                                //table.Cell(i + 2, 5).Range.Text = pa.ToString("0.00");
+                                hproc += ph.ToString("0.000") + "\n";
                                 i++;
                             }
-
+                            objBookMark = "APROC";
+                            doc.Bookmarks.get_Item(ref objBookMark).Range.Text = aproc;
+                            objBookMark = "HPROC";
+                            doc.Bookmarks.get_Item(ref objBookMark).Range.Text = hproc;
 
                             System.Windows.Forms.SaveFileDialog saveDocDialog = new System.Windows.Forms.SaveFileDialog();
 

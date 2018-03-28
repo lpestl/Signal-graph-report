@@ -259,7 +259,7 @@ void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 	Point pStart = ToPixel(offsetX, offsetY);
 
 	int projectionLen = 25;
-	float smaller;
+	float smaller = 900;
 	
 	while (offsetX <= 35) {		
 		float dX;
@@ -275,124 +275,30 @@ void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 
 			offsetX += dX;
 			offsetY = (float)(-1) / z * (offsetX - mx) * (offsetX - mx) + my;
-				
+
 			if (offsetX >= keyPoints[0]->GetHoldTime()) {
-				Result^ res = gcnew Result();
-				res->Time = keyPoints[0]->GetHoldTime();
-				res->Area = keyPoints[0]->GetArea();
-				res->Height = res->Area * 0.141f /*- 4644900*/;
-
-				double y = offsetY + Math::Abs((double)res->Height / 13500000 * 2000 - offsetY) * rnd->NextDouble();
-
-				maxX = res->Time;
-				maxY = y;
-
-				offsetY = offsetY + rnd->NextDouble() * (y-offsetY);
-
-				DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
-				DrawPick(maxX, maxY, offsetX, offsetY, g);
-
-				resultTable->Add(res);
+				offsetY = (900 + 600 * rnd->NextDouble()) / 2;
+				DrawPickInterval(dX, offsetX, offsetY, lastOffsetX, lastOffsetY, maxX, maxY, 0, g);
 			}
 		}
 		else if (offsetX < keyPoints[1]->GetHoldTime()) {
 			dX = 0.05f + 0.3f * rnd->NextDouble();
 			
 			offsetX += dX;
-			offsetY = 900 + 600 * rnd->NextDouble();
-			
-			if (offsetX >= keyPoints[1]->GetHoldTime()) {
-				Result^ res = gcnew Result();
-				res->Time = keyPoints[1]->GetHoldTime();
-				res->Area = keyPoints[1]->GetArea();
-				res->Height = res->Area * 0.0787f /*- 155040*/;
+			offsetY = 900 + 600 * rnd->NextDouble();			
 
-				double y = max(lastOffsetY, offsetY) + Math::Abs((double)res->Height / 13500000 * 2000 - max(lastOffsetY, offsetY)) * rnd->NextDouble();
-
-				maxX = res->Time;
-				maxY = y;
-
-				//offsetY = offsetY - rnd->NextDouble() * (y - offsetY);
-
-				DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
-				DrawPick(maxX, maxY, offsetX, offsetY, g);
-
-				resultTable->Add(res);
-
-				smaller = 900;
-			}
-			else {
-				Result^ res = gcnew Result();
-				res->Time = dX / 3 * rnd->NextDouble() + lastOffsetX + dX / 3;
-
-				res->Area = rnd->Next(10000000, 500000000);
-				//if (s >= resultTable[resultTable->Count - 1]->Area) res->Area = resultTable[resultTable->Count - 1]->Area + Math::Abs(s);
-				//else res->Area = resultTable[resultTable->Count - 1]->Area + s;
-				res->Height = res->Area * 0.141f /*- 4644900*/;
-				double y = max(lastOffsetY, offsetY) + Math::Abs((double)res->Height / 13500000 * 2000 - max(lastOffsetY, offsetY)) * rnd->NextDouble() / 2;
-
-				maxX = res->Time;
-				maxY = y;
-
-				DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
-				DrawPick(maxX, maxY, offsetX, offsetY, g);
-
-				resultTable->Add(res);
-			}
+			DrawPickInterval(dX, offsetX, offsetY, lastOffsetX, lastOffsetY, maxX, maxY, 1, g);
 		}
 		else {
-			if (((keyPoints->Count == 4) && (offsetX < keyPoints[3]->GetHoldTime()))
-				|| (((keyPoints->Count == 5) && (offsetX < keyPoints[4]->GetHoldTime())))) {
+			if (offsetX < keyPoints[keyPoints->Count - 1]->GetHoldTime()) {
+			//if (((keyPoints->Count == 4) && (offsetX < keyPoints[3]->GetHoldTime()))
+			//	|| (((keyPoints->Count == 5) && (offsetX < keyPoints[4]->GetHoldTime())))) {
 				dX = 0.2f + 0.3f * rnd->NextDouble();
 
 				offsetX += dX;
 				offsetY = (float)(-1) / z * (offsetX - mx) * (offsetX - mx) + my + smaller * rnd->NextDouble();
 
-				if (((keyPoints->Count == 4) && (offsetX >= keyPoints[3]->GetHoldTime()))
-					|| ((keyPoints->Count == 5) && (offsetX >= keyPoints[4]->GetHoldTime()))) {
-					Result^ res = gcnew Result();
-					if (keyPoints->Count == 4) {
-						res->Time = keyPoints[3]->GetHoldTime();
-						res->Area = keyPoints[3]->GetArea();
-					}
-					else {
-						res->Time = keyPoints[4]->GetHoldTime();
-						res->Area = keyPoints[4]->GetArea();
-					}
-					//res->Height = res->Area * 0.0455f;
-
-					//double y = (double)res->Height / 13500000 * 2000;
-					res->Height = res->Area * 0.0455 + 14769.6971;
-					//double y = max(lastOffsetY, offsetY) + smaller * rnd->NextDouble();
-					double y = max(lastOffsetY, offsetY) + Math::Abs((double)res->Height / 13500000 * 2000 - max(lastOffsetY, offsetY)) * rnd->NextDouble();
-
-					maxX = res->Time;
-					maxY = y;
-
-					//offsetY = offsetY - rnd->NextDouble() * (y - offsetY);
-
-					DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
-					DrawPick(maxX, maxY, offsetX, offsetY, g);
-
-					resultTable->Add(res);
-				}
-				else {
-					Result^ res = gcnew Result();
-					res->Time = dX / 3 * rnd->NextDouble() + lastOffsetX + dX / 3;
-					res->Area = rnd->Next(100000, 3000000);
-					//if (s >= resultTable[resultTable->Count - 1]->Area) res->Area = resultTable[resultTable->Count - 1]->Area + Math::Abs(s);
-					//else res->Area = resultTable[resultTable->Count - 1]->Area + s;
-					res->Height = res->Area * 0.0455 + 14769.6971;
-					double y = max(lastOffsetY, offsetY) + Math::Abs((double)res->Height / 13500000 * 2000 - max(lastOffsetY, offsetY)) * rnd->NextDouble();
-
-					maxX = res->Time;
-					maxY = y;
-
-					DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
-					DrawPick(maxX, maxY, offsetX, offsetY, g);
-
-					resultTable->Add(res);
-				}
+				DrawPickInterval(dX, offsetX, offsetY, lastOffsetX, lastOffsetY, maxX, maxY, keyPoints->Count - 1, g);
 
 				smaller = smaller / 8 * 7;
 			}
@@ -402,21 +308,7 @@ void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 				offsetX += dX;
 				offsetY = (float)(-1) / z * (lastOffsetX - mx) * (lastOffsetX - mx) + my;
 
-				Result^ res = gcnew Result();
-				res->Time = dX / 3 * rnd->NextDouble() + lastOffsetX + dX / 3;
-				res->Area = rnd->Next(1000, 20000000);
-				//if (s >= resultTable[resultTable->Count - 1]->Area) res->Area = resultTable[resultTable->Count - 1]->Area + Math::Abs(s);
-				//else res->Area = resultTable[resultTable->Count - 1]->Area + s;
-				res->Height = res->Area * 0.0455 + 14769.6971;
-				double y = max(lastOffsetY, offsetY) + 20 * rnd->NextDouble();
-
-				maxX = res->Time;
-				maxY = y;
-
-				DrawPick(lastOffsetX, lastOffsetY, maxX, maxY, g);
-				DrawPick(maxX, maxY, offsetX, offsetY, g);
-
-				resultTable->Add(res);
+				DrawPickInterval(dX, offsetX, offsetY, lastOffsetX, lastOffsetY, maxX, maxY, -1, g);
 			}
 		}		
 		
@@ -429,7 +321,6 @@ void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 		auto maxLineY = (float)(-1) / z * (maxX - mx) * (maxX - mx) + my;
 
 		if (ToPixelY(maxLineY) != ToPixelY(maxY)) {
-		//if (((int)mainLineY1 != pStart.Y) || ((int)mainLineY2 != pEnd.Y)) {
 			g->DrawLine(redPen, pStart, Point(pStart.X, pStart.Y + projectionLen));
 			g->DrawLine(bluePen, pEnd, Point(pEnd.X, pEnd.Y - projectionLen));
 			g->DrawLine(redPen, Point(pStart.X, mainLineY1), Point(pEnd.X, mainLineY2));
@@ -451,7 +342,54 @@ void SignalgraphCore::DataProcessing::DrawGraph(Bitmap ^ graph)
 
 }
 
-void SignalgraphCore::DataProcessing::DrawPick(double x0, double y0, double x1, double y1, Graphics^ g)
+void SignalgraphCore::DataProcessing::DrawPickInterval(float &dx, float & x, float & y, float & xPrev, float & yPrev, float & maxX, float & maxY, int indexNextKeyPoint, Graphics^ g)
+{
+	Result^ res = gcnew Result();
+	Random^ rnd = gcnew Random();
+
+	bool isKeyPoint = false;
+	for (auto i = 0; i < keyPoints->Count; ++i) {
+		if ((x >= keyPoints[i]->GetHoldTime()) && (xPrev < keyPoints[i]->GetHoldTime())) {
+			res->Time = keyPoints[i]->GetHoldTime();
+			res->Area = keyPoints[i]->GetArea();
+			isKeyPoint = true;
+			break;
+		}
+	}
+
+	if (!isKeyPoint) {
+		res->Time = dx / 3 * rnd->NextDouble() + xPrev + dx / 3;
+
+		if (indexNextKeyPoint == 1) 
+			res->Area = rnd->Next(10000000, 500000000);
+		else if ((indexNextKeyPoint >= 0) && (indexNextKeyPoint < keyPoints->Count)) 
+			res->Area = rnd->Next(  100000,   3000000);
+		else if (indexNextKeyPoint == -1)
+			res->Area = rnd->Next(    1000,  20000000);
+	}
+
+	maxX = res->Time;
+
+	if (indexNextKeyPoint == 1) {
+		res->Height = (double)res->Area * 0.141f /*- 4644900*/;
+		maxY = max(yPrev, y) + Math::Abs((double)res->Height / 13500000 * 2000) * rnd->NextDouble() / 2;
+	}
+	else if ((indexNextKeyPoint >= 0) && (indexNextKeyPoint < keyPoints->Count)) {
+		res->Height = (double)res->Area * 0.0787f /*- 155040*/;
+		maxY = max(yPrev, y) + Math::Abs((double)res->Height / 13500000 * 2000) * rnd->NextDouble();
+	}
+	else if (indexNextKeyPoint == -1) {
+		res->Height = (double)res->Area * 0.0455 + 14769.6971;
+		maxY = max(yPrev, y) + 20 * rnd->NextDouble();
+	}
+
+	DrawBezier(xPrev, yPrev, maxX, maxY, g);
+	DrawBezier(maxX, maxY, x, y, g);
+
+	resultTable->Add(res);
+}
+
+void SignalgraphCore::DataProcessing::DrawBezier(double x0, double y0, double x1, double y1, Graphics^ g)
 {
 	Random^ rnd = gcnew Random();
 	double px0, py0, px1, py1;

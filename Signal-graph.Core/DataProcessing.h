@@ -49,7 +49,8 @@ namespace SignalgraphCore {
 		void DrawGrid(Bitmap ^ graph);
 		void DrawGraph(Bitmap ^ graph);
 
-		void DrawPick(double x0, double y0, double x1, double y1, Graphics^ g);
+		void DrawPickInterval(float &dx, float &x, float &y, float &xPrev, float &yPrev, float &maxX, float &maxY, int indexNextKeyPoint, Graphics^ g);
+		void DrawBezier(double x0, double y0, double x1, double y1, Graphics^ g);
 
 		static int ToPixelX(double x);
 		static int ToPixelY(double y);
